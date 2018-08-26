@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface SupplierMasterRepository extends JpaRepository<SupplierMaster,Integer> {
 
-    @Query(value = "select e from SupplierMaster e where (e.advertiserName =:advertiserName and e.productName=:productName) or (e.productName=:productName) or (e.advertiserName=:advertiserName) order by e.id")
+    @Query(value = "select e from SupplierMaster e where (lower(e.advertiserName) =:advertiserName and lower(e.productName)=:productName) or (lower(e.productName)=:productName) or (lower(e.advertiserName)=:advertiserName)")
     List<SupplierMaster> findByAdvertiserNameOrProductName(@Param("advertiserName") String advertiserName,@Param("productName") String productName);
 }
