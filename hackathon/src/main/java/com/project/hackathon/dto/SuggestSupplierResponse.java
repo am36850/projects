@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class SuggestSupplierResponse implements Comparable<SuggestSupplierResponse>{
+public class SuggestSupplierResponse implements Comparable<SuggestSupplierResponse> {
 
     private Integer supplierId;
     private String supplierName;
@@ -101,7 +101,29 @@ public class SuggestSupplierResponse implements Comparable<SuggestSupplierRespon
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        SuggestSupplierResponse that = (SuggestSupplierResponse) o;
+        return getSupplierId() != null ? getSupplierId().equals(that.getSupplierId()) : that.getSupplierId() == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return getSupplierId() != null ? getSupplierId().hashCode() : 0;
+    }
+
+    @Override
     public int compareTo(SuggestSupplierResponse o) {
         return o.confidencePercentage.compareTo(this.getConfidencePercentage());
+    }
+
+    @Override
+    public String toString() {
+        return "SuggestSupplierResponse{" + "supplierId=" + supplierId + ", supplierName='" + supplierName + '\'' + ", startDate=" + startDate + ", endDate=" + endDate
+                + ", targetedBudget=" + targetedBudget + ", targetedImpressions=" + targetedImpressions + ", predictedBudget=" + predictedBudget + ", predictedImpressions="
+                + predictedImpressions + ", confidencePercentage=" + confidencePercentage + ", rating=" + rating + '}';
     }
 }

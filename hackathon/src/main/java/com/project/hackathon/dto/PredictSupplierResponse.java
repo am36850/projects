@@ -20,4 +20,9 @@ public class PredictSupplierResponse {
     public void setSupplierName(String supplierName) {
         this.supplierName = supplierName;
     }
+
+    @Override
+    public String toString() {
+        return "PredictSupplierResponse{" + "supplierId=" + supplierId + ", supplierName='" + supplierName + '\'' + '}';
+    }
 }

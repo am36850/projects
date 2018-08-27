@@ -86,8 +86,8 @@ public class SuggestSupplierServiceImpl implements SuggestSupplierService {
             supplierResponse.setEndDate(completionRatioResponse.getEndDate());
             supplierResponse.setSupplierId(completionRatioResponse.getSupplierId());
             supplierResponse.setSupplierName(completionRatioResponse.getSupplierName());
-            supplierResponse.setTargetedImpressions(completionRatioResponse.getTotalImpression());
-            supplierResponse.setTargetedBudget(completionRatioResponse.getTotalBudget());
+            supplierResponse.setTargetedImpressions(suggestSupplierRequest.getTargetedImpressions());
+            supplierResponse.setTargetedBudget(suggestSupplierRequest.getTargetedBudget());
             supplierResponse.setConfidencePercentage(completionRatioResponse.getCompletionRatio());
             supplierResponse.setPredictedBudget(completionRatioResponse.getTotalBudget());
             supplierResponse.setPredictedImpressions(completionRatioResponse.getTotalImpression());
@@ -112,7 +112,6 @@ public class SuggestSupplierServiceImpl implements SuggestSupplierService {
             completionRatioRequest.setSupplierName(impressionAndCostPredictionResponse.getSupplierName());
             completionRatioRequest.setTotalImpression(predictedImpressions);
             completionRatioRequest.setTotalBudget(calculatePredictedBudget(predictedImpressions,impressionAndCostPredictionResponse.getCostPerImps()));
-
             completionRatioRequests.add(completionRatioRequest);
         }
         for(CompletionRatioRequest completionRatioRequest : completionRatioRequests) {
@@ -123,7 +122,7 @@ public class SuggestSupplierServiceImpl implements SuggestSupplierService {
 
     private BigDecimal calculatePredictedBudget(Integer predictedImpressions, Double costPerImps) {
         double predicatedBudget = predictedImpressions * costPerImps;
-        return BigDecimal.valueOf(predicatedBudget);
+        return BigDecimal.valueOf(Math.round(predicatedBudget*100.0)/100);
     }
 
     private Integer calculatePredictedImpressions(Integer impsPerDay, Date startDate, Date endDate) {

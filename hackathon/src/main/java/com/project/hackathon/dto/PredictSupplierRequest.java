@@ -20,4 +20,9 @@ public class PredictSupplierRequest {
     public void setProduct(String product) {
         this.product = product;
     }
+
+    @Override
+    public String toString() {
+        return "PredictSupplierRequest{" + "advertiser='" + advertiser + '\'' + ", product='" + product + '\'' + '}';
+    }
 }

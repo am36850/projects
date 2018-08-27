@@ -58,4 +58,10 @@ public class PredictCostPerImpsRequest {
     public void setProduct(String product) {
         this.product = product;
     }
+
+    @Override
+    public String toString() {
+        return "PredictCostPerImpsRequest{" + "supplierId=" + supplierId + ", supplierName='" + supplierName + '\'' + ", startDate=" + startDate + ", endDate=" + endDate
+                + ", advertiser='" + advertiser + '\'' + ", product='" + product + '\'' + '}';
+    }
 }

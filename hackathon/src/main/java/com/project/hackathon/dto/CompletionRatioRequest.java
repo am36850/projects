@@ -86,4 +86,11 @@ public class CompletionRatioRequest {
     public void setTotalBudget(BigDecimal totalBudget) {
         this.totalBudget = totalBudget;
     }
+
+    @Override
+    public String toString() {
+        return "CompletionRatioRequest{" + "supplierId=" + supplierId + ", supplierName='" + supplierName + '\'' + ", startDate=" + startDate + ", endDate=" + endDate
+                + ", advertiser='" + advertiser + '\'' + ", product='" + product + '\'' + ", duration=" + duration + ", totalImpression=" + totalImpression + ", totalBudget="
+                + totalBudget + '}';
+    }
 }

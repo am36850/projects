@@ -29,6 +29,7 @@ public class PredictCompletionRationWatsonML implements PredictCompletionRatioSe
         completionRatioResponse.setProduct(completionRatioRequest.getProduct());
         completionRatioResponse.setStartDate(completionRatioRequest.getStartDate());
         completionRatioResponse.setEndDate(completionRatioRequest.getEndDate());
+        completionRatioResponse.setSupplierId(completionRatioRequest.getSupplierId());
         completionRatioResponse.setSupplierName(completionRatioRequest.getSupplierName());
         completionRatioResponse.setDuration(completionRatioRequest.getDuration());
         completionRatioResponse.setTotalBudget(completionRatioRequest.getTotalBudget());
@@ -39,6 +40,6 @@ public class PredictCompletionRationWatsonML implements PredictCompletionRatioSe
 
     private Double generateRandomCompletionRation() {
         Random random = new Random(1);
-        return random.nextDouble() + 0.55;
+        return Math.round(random.nextDouble()*100.0)/100.0;
     }
 }

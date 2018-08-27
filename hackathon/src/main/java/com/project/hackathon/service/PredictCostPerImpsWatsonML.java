@@ -2,7 +2,6 @@ package com.project.hackathon.service;
 
 import com.project.hackathon.dto.ImpressionAndCostPredictionResponse;
 import com.project.hackathon.dto.PredictCostPerImpsRequest;
-import com.project.hackathon.dto.PredictCostPerImpsResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ public class PredictCostPerImpsWatsonML implements PredictCostPerImpsService {
         impressionAndCostPredictionResponse.setStartDate(predictCostPerImpsRequest.getStartDate());
         impressionAndCostPredictionResponse.setEndDate(predictCostPerImpsRequest.getEndDate());
         impressionAndCostPredictionResponse.setProduct(predictCostPerImpsRequest.getProduct());
+        impressionAndCostPredictionResponse.setSupplierId(predictCostPerImpsRequest.getSupplierId());
         impressionAndCostPredictionResponse.setSupplierName(predictCostPerImpsRequest.getSupplierName());
         impressionAndCostPredictionResponse.setCostPerImps(generateRandomCostPerImps());
         return impressionAndCostPredictionResponse;
@@ -37,6 +37,6 @@ public class PredictCostPerImpsWatsonML implements PredictCostPerImpsService {
 
     private Double generateRandomCostPerImps() {
         Random random = new Random(5);
-        return random.nextDouble();
+        return Math.round(random.nextDouble()*100.0)/100.0;
     }
 }

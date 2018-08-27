@@ -85,4 +85,10 @@ public class ImpressionAndCostPredictionResponse {
         }
         return response1;
     }
+
+    @Override
+    public String toString() {
+        return "ImpressionAndCostPredictionResponse{" + "supplierId=" + supplierId + ", supplierName='" + supplierName + '\'' + ", startDate=" + startDate + ", endDate=" + endDate
+                + ", advertiser='" + advertiser + '\'' + ", product='" + product + '\'' + ", impsPerDay=" + impsPerDay + ", costPerImps=" + costPerImps + '}';
+    }
 }

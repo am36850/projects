@@ -95,4 +95,11 @@ public class CompletionRatioResponse {
     public void setCompletionRatio(Double completionRatio) {
         this.completionRatio = completionRatio;
     }
+
+    @Override
+    public String toString() {
+        return "CompletionRatioResponse{" + "supplierId=" + supplierId + ", supplierName='" + supplierName + '\'' + ", startDate=" + startDate + ", endDate=" + endDate
+                + ", advertiser='" + advertiser + '\'' + ", product='" + product + '\'' + ", duration=" + duration + ", totalImpression=" + totalImpression + ", totalBudget="
+                + totalBudget + ", completionRatio=" + completionRatio + '}';
+    }
 }

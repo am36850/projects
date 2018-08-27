@@ -16,13 +16,13 @@ public class HackathonApplication {
 		SpringApplication.run(HackathonApplication.class, args);
 	}
 
-    @Bean
+    @Bean("taskExecutor")
     public Executor asyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(10);
         executor.setMaxPoolSize(20);
         executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("Machine Learning -");
+        executor.setThreadNamePrefix("ML Threads -");
         executor.initialize();
         return executor;
     }

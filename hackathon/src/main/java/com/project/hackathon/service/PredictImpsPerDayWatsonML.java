@@ -29,6 +29,7 @@ public class PredictImpsPerDayWatsonML implements PredictImpressionsPerDayServic
         impressionPerDayResponse.setStartDate(impressionPerDayRequest.getStartDate());
         impressionPerDayResponse.setEndDate(impressionPerDayRequest.getEndDate());
         impressionPerDayResponse.setProduct(impressionPerDayRequest.getProduct());
+        impressionPerDayResponse.setSupplierId(impressionPerDayRequest.getSupplierId());
         impressionPerDayResponse.setSupplierName(impressionPerDayRequest.getSupplierName());
         impressionPerDayResponse.setImpsPerDay(generateRandomImpression());
         return impressionPerDayResponse;
@@ -36,6 +37,6 @@ public class PredictImpsPerDayWatsonML implements PredictImpressionsPerDayServic
 
     private Integer generateRandomImpression() {
         Random random = new Random(4000);
-        return random.nextInt();
+        return random.nextInt() & Integer.MAX_VALUE;
     }
 }

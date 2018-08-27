@@ -14,18 +14,23 @@ public class ProgressDto {
     public String getStep() {
         return step;
     }
+
     public void setStep(String step) {
         this.step = step;
     }
+
     public String getNotificationData() {
         return notificationData;
     }
+
     public void setNotificationData(String notificationData) {
         this.notificationData = notificationData;
     }
+
     public Date getTime() {
         return time;
     }
+
     public void setTime(Date time) {
         this.time = time;
     }

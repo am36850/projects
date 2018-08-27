@@ -72,4 +72,10 @@ public class SuggestSupplierRequest {
     public void setTargetedImpressions(Integer targetedImpressions) {
         this.targetedImpressions = targetedImpressions;
     }
+
+    @Override
+    public String toString() {
+        return "SuggestSupplierRequest{" + "supplierName='" + supplierName + '\'' + ", advertiser='" + advertiser + '\'' + ", product='" + product + '\'' + ", startDate="
+                + startDate + ", endDate=" + endDate + ", targetedBudget=" + targetedBudget + ", targetedImpressions=" + targetedImpressions + '}';
+    }
 }

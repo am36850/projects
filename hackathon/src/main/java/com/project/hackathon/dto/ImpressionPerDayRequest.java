@@ -58,4 +58,10 @@ public class ImpressionPerDayRequest {
     public void setSupplierId(Integer supplierId) {
         this.supplierId = supplierId;
     }
+
+    @Override
+    public String toString() {
+        return "ImpressionPerDayRequest{" + "supplierId=" + supplierId + ", supplierName='" + supplierName + '\'' + ", startDate=" + startDate + ", endDate=" + endDate
+                + ", advertiser='" + advertiser + '\'' + ", product='" + product + '\'' + '}';
+    }
 }

@@ -58,4 +58,10 @@ public class PredictCostPerImpsResponse {
     public void setCostPerImps(Double costPerImps) {
         this.costPerImps = costPerImps;
     }
+
+    @Override
+    public String toString() {
+        return "PredictCostPerImpsResponse{" + "supplierName='" + supplierName + '\'' + ", startDate=" + startDate + ", endDate=" + endDate + ", advertiser='" + advertiser + '\''
+                + ", product='" + product + '\'' + ", costPerImps=" + costPerImps + '}';
+    }
 }
