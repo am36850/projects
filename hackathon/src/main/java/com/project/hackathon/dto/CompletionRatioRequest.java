@@ -5,6 +5,7 @@ import java.util.Date;
 
 public class CompletionRatioRequest {
 
+    private Integer supplierId;
     private String supplierName;
     private Date startDate;
     private Date endDate;
@@ -13,6 +14,14 @@ public class CompletionRatioRequest {
     private Integer duration;
     private Integer totalImpression;
     private BigDecimal totalBudget;
+
+    public Integer getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Integer supplierId) {
+        this.supplierId = supplierId;
+    }
 
     public String getSupplierName() {
         return supplierName;

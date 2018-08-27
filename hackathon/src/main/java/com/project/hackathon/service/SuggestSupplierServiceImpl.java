@@ -1,5 +1,6 @@
 package com.project.hackathon.service;
 
+import com.project.hackathon.dto.CompletionRatioRequest;
 import com.project.hackathon.dto.CompletionRatioResponse;
 import com.project.hackathon.dto.ImpressionAndCostPredictionResponse;
 import com.project.hackathon.dto.ImpressionPerDayRequest;
@@ -9,15 +10,17 @@ import com.project.hackathon.dto.PredictSupplierResponse;
 import com.project.hackathon.dto.SuggestSupplierRequest;
 import com.project.hackathon.dto.SuggestSupplierResponse;
 
-import org.hibernate.cfg.NotYetImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Component
@@ -49,6 +52,8 @@ public class SuggestSupplierServiceImpl implements SuggestSupplierService {
     @Override
     public List<SuggestSupplierResponse> suggestSupplier(SuggestSupplierRequest suggestSupplierRequest) {
 
+        LOGGER.info("Request received {}",suggestSupplierRequest);
+
         //step 1: predicting suppliers based on advertiser and product
         List<PredictSupplierResponse> predictedSuppliers = predictSupplier.predictSupplier(mapPredictSupplierRequest(suggestSupplierRequest));
 
@@ -59,30 +64,88 @@ public class SuggestSupplierServiceImpl implements SuggestSupplierService {
         List<CompletableFuture<ImpressionAndCostPredictionResponse>> completableFutureCostPerDay = submitCostPerDayRequest(predictedSuppliers,suggestSupplierRequest);
 
         // waiting for asynchronous tasks to finish
-        List<CompletableFuture<ImpressionAndCostPredictionResponse>> allCompletableFutures = completableFutureImpsPerDay;
-        allCompletableFutures.addAll(completableFutureCostPerDay);
-        List<ImpressionAndCostPredictionResponse> impressionAndCostPredictionResponses = allCompletableFutures.stream().map(CompletableFuture::join).collect(Collectors.toList());
+        completableFutureImpsPerDay.addAll(completableFutureCostPerDay);
+        List<ImpressionAndCostPredictionResponse> impressionAndCostPredictionResponses = completableFutureImpsPerDay.stream().map(CompletableFuture::join).collect(Collectors.toList());
 
         // merging predicted responses from step 2 and step 3
         List<ImpressionAndCostPredictionResponse> predictedImpsAndCostValues = filterResult(impressionAndCostPredictionResponses,predictedSuppliers);
 
         //step 4 : predicting completion ratio for predicted suppliers
-        List<CompletableFuture<CompletionRatioResponse>> completableFutures = submitCompletionRationRequest(predictedImpsAndCostValues,suggestSupplierRequest);
+        List<CompletableFuture<CompletionRatioResponse>> completableFutures = submitCompletionRationRequest(predictedImpsAndCostValues);
         List<CompletionRatioResponse> completionRatioResponses = completableFutures.stream().map(CompletableFuture::join).collect(Collectors.toList());
 
         //step 5 : optimizing suggested suppliers response as per request
-        return submitOptimizedSupplierRequest(completionRatioResponses);
+        return submitOptimizedSupplierRequest(suggestSupplierRequest,completionRatioResponses);
     }
 
-
-    **************
-    private List<SuggestSupplierResponse> submitOptimizedSupplierRequest(List<CompletionRatioResponse> completionRatioResponses) {
-        throw new NotYetImplementedException();
+    private List<SuggestSupplierResponse> submitOptimizedSupplierRequest(SuggestSupplierRequest suggestSupplierRequest, List<CompletionRatioResponse> completionRatioResponses) {
+        List<SuggestSupplierResponse> suggestSupplierResponses = new ArrayList<>();
+        for (CompletionRatioResponse completionRatioResponse : completionRatioResponses){
+            SuggestSupplierResponse supplierResponse = new SuggestSupplierResponse();
+            supplierResponse.setStartDate(completionRatioResponse.getStartDate());
+            supplierResponse.setEndDate(completionRatioResponse.getEndDate());
+            supplierResponse.setSupplierId(completionRatioResponse.getSupplierId());
+            supplierResponse.setSupplierName(completionRatioResponse.getSupplierName());
+            supplierResponse.setTargetedImpressions(completionRatioResponse.getTotalImpression());
+            supplierResponse.setTargetedBudget(completionRatioResponse.getTotalBudget());
+            supplierResponse.setConfidencePercentage(completionRatioResponse.getCompletionRatio());
+            supplierResponse.setPredictedBudget(completionRatioResponse.getTotalBudget());
+            supplierResponse.setPredictedImpressions(completionRatioResponse.getTotalImpression());
+            supplierResponse.setRating(getRatings(completionRatioResponse.getCompletionRatio()));
+            suggestSupplierResponses.add(supplierResponse);
+        }
+        return optimizeSuggestedSuppliersService.optimizeSuggestedSupplier(suggestSupplierRequest,suggestSupplierResponses);
     }
 
-    **************
-    private List<CompletableFuture<CompletionRatioResponse>> submitCompletionRationRequest(List<ImpressionAndCostPredictionResponse> predictedImpsAndCostValues, SuggestSupplierRequest suggestSupplierRequest) {
-        throw new NotYetImplementedException();
+    private List<CompletableFuture<CompletionRatioResponse>> submitCompletionRationRequest(List<ImpressionAndCostPredictionResponse> predictedImpsAndCostValues) {
+        List<CompletionRatioRequest> completionRatioRequests = new ArrayList<>();
+        List<CompletableFuture<CompletionRatioResponse>> completableFutures = new ArrayList<>();
+        for(ImpressionAndCostPredictionResponse impressionAndCostPredictionResponse : predictedImpsAndCostValues) {
+            Integer predictedImpressions = calculatePredictedImpressions(impressionAndCostPredictionResponse.getImpsPerDay(),impressionAndCostPredictionResponse.getStartDate(),impressionAndCostPredictionResponse.getEndDate());
+            CompletionRatioRequest completionRatioRequest = new CompletionRatioRequest();
+            completionRatioRequest.setAdvertiser(impressionAndCostPredictionResponse.getAdvertiser());
+            completionRatioRequest.setProduct(impressionAndCostPredictionResponse.getProduct());
+            completionRatioRequest.setStartDate(impressionAndCostPredictionResponse.getStartDate());
+            completionRatioRequest.setEndDate(impressionAndCostPredictionResponse.getEndDate());
+            completionRatioRequest.setDuration(calculateDuration(impressionAndCostPredictionResponse.getStartDate(),impressionAndCostPredictionResponse.getEndDate()));
+            completionRatioRequest.setSupplierId(impressionAndCostPredictionResponse.getSupplierId());
+            completionRatioRequest.setSupplierName(impressionAndCostPredictionResponse.getSupplierName());
+            completionRatioRequest.setTotalImpression(predictedImpressions);
+            completionRatioRequest.setTotalBudget(calculatePredictedBudget(predictedImpressions,impressionAndCostPredictionResponse.getCostPerImps()));
+
+            completionRatioRequests.add(completionRatioRequest);
+        }
+        for(CompletionRatioRequest completionRatioRequest : completionRatioRequests) {
+            completableFutures.add(predictCompletionRatioService.predictCompletionRation(completionRatioRequest));
+        }
+        return completableFutures;
+    }
+
+    private BigDecimal calculatePredictedBudget(Integer predictedImpressions, Double costPerImps) {
+        double predicatedBudget = predictedImpressions * costPerImps;
+        return BigDecimal.valueOf(predicatedBudget);
+    }
+
+    private Integer calculatePredictedImpressions(Integer impsPerDay, Date startDate, Date endDate) {
+        int duration = calculateDuration(startDate, endDate);
+        return impsPerDay * duration;
+    }
+
+    private Integer getRatings(Double confidencePercentage) {
+        int ratings = 5;
+        if (confidencePercentage < 1) {
+            confidencePercentage = confidencePercentage - 0.50;
+            ratings = (int) Math.ceil(confidencePercentage * 10);
+        }
+        return ratings;
+    }
+
+    private int calculateDuration(Date firstDate, Date secondDate) {
+        if (firstDate.getTime() == secondDate.getTime()) {
+            return 1;
+        }
+        long diffInMollies = Math.abs(secondDate.getTime() - firstDate.getTime());
+        return Math.toIntExact(TimeUnit.DAYS.convert(diffInMollies, TimeUnit.MILLISECONDS));
     }
 
     private List<ImpressionAndCostPredictionResponse> filterResult(List<ImpressionAndCostPredictionResponse> impressionAndCostPredictionResponses,

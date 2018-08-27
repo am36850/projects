@@ -5,6 +5,7 @@ import java.util.Date;
 
 public class CompletionRatioResponse {
 
+    private Integer supplierId;
     private String supplierName;
     private Date startDate;
     private Date endDate;
@@ -14,6 +15,14 @@ public class CompletionRatioResponse {
     private Integer totalImpression;
     private BigDecimal totalBudget;
     private Double completionRatio;
+
+    public Integer getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Integer supplierId) {
+        this.supplierId = supplierId;
+    }
 
     public String getSupplierName() {
         return supplierName;
