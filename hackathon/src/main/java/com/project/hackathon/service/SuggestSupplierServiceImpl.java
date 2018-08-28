@@ -38,15 +38,18 @@ public class SuggestSupplierServiceImpl implements SuggestSupplierService {
 
     private final OptimizeSuggestedSuppliersService optimizeSuggestedSuppliersService;
 
+    private final NotificationService notificationService;
+
     @Autowired
     public SuggestSupplierServiceImpl(PredictSupplier predictSupplier, PredictImpressionsPerDayService predictImpressionsPerDayService,
             PredictCostPerImpsService predictCostPerImpsService, PredictCompletionRatioService predictCompletionRatioService,
-            OptimizeSuggestedSuppliersService optimizeSuggestedSuppliersService) {
+            OptimizeSuggestedSuppliersService optimizeSuggestedSuppliersService, NotificationService notificationService) {
         this.predictSupplier = predictSupplier;
         this.predictImpressionsPerDayService = predictImpressionsPerDayService;
         this.predictCostPerImpsService = predictCostPerImpsService;
         this.predictCompletionRatioService = predictCompletionRatioService;
         this.optimizeSuggestedSuppliersService = optimizeSuggestedSuppliersService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -56,6 +59,8 @@ public class SuggestSupplierServiceImpl implements SuggestSupplierService {
 
         //step 1: predicting suppliers based on advertiser and product
         List<PredictSupplierResponse> predictedSuppliers = predictSupplier.predictSupplier(mapPredictSupplierRequest(suggestSupplierRequest));
+
+        notificationService.progress("1");
 
         // step2 : predicting Impressions per day for predicted suppliers in async fashion
         List<CompletableFuture<ImpressionAndCostPredictionResponse>> completableFutureImpsPerDay = submitImpsPerDayRequest(predictedSuppliers,suggestSupplierRequest);
@@ -70,12 +75,20 @@ public class SuggestSupplierServiceImpl implements SuggestSupplierService {
         // merging predicted responses from step 2 and step 3
         List<ImpressionAndCostPredictionResponse> predictedImpsAndCostValues = filterResult(impressionAndCostPredictionResponses,predictedSuppliers);
 
+        notificationService.progress("2");
+
         //step 4 : predicting completion ratio for predicted suppliers
         List<CompletableFuture<CompletionRatioResponse>> completableFutures = submitCompletionRationRequest(predictedImpsAndCostValues);
         List<CompletionRatioResponse> completionRatioResponses = completableFutures.stream().map(CompletableFuture::join).collect(Collectors.toList());
 
+        notificationService.progress("3");
+
         //step 5 : optimizing suggested suppliers response as per request
-        return submitOptimizedSupplierRequest(suggestSupplierRequest,completionRatioResponses);
+        List<SuggestSupplierResponse> suggestSupplierResponses = submitOptimizedSupplierRequest(suggestSupplierRequest,completionRatioResponses);
+
+        notificationService.progress("4");
+
+        return suggestSupplierResponses;
     }
 
     private List<SuggestSupplierResponse> submitOptimizedSupplierRequest(SuggestSupplierRequest suggestSupplierRequest, List<CompletionRatioResponse> completionRatioResponses) {

@@ -33,4 +33,17 @@ public class NotificationServiceImpl implements NotificationService {
         simpMessagingTemplate.convertAndSend(notificationUrl,notification);
         LOGGER.info("Notification Sent");
     }
+
+    @Override
+    public void progress(String stepId) {
+        LOGGER.info("Sending notification:{}",stepId);
+        simpMessagingTemplate.convertAndSend(notificationUrl,stepId);
+        try {
+            Thread.currentThread().sleep(3000);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        LOGGER.info("Notification Sent");
+    }
 }
